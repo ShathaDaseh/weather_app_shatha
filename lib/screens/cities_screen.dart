@@ -97,7 +97,6 @@ class _CitiesScreenState extends State<CitiesScreen> {
                       ? provider.iconUrl!
                       : "//cdn.weatherapi.com/weather/64x64/day/113.png",
                   onTap: () async {
-                    // تجنّب استخدام context بعد await:
                     final prov = context.read<WeatherProvider>();
                     final navigator = Navigator.of(context);
                     await prov.fetchWeather(city);
@@ -114,14 +113,11 @@ class _CitiesScreenState extends State<CitiesScreen> {
     );
   }
 
-  // Loads weather data for the given city and updates currentWeather.
   Future<void> loadWeatherForCity(String city) async {
-    // استخدم مزود الطقس بدل الplaceholder
     final prov = context.read<WeatherProvider>();
     await prov.fetchWeather(city);
     setState(() {
       selectedCity = city;
-      // currentWeather يبقى غير مطلوب الآن لأن Provider يخزن الحالة
     });
   }
 }

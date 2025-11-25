@@ -5,5 +5,3 @@ const String kPlaceholderIcon =
     'https://via.placeholder.com/128?text=weather';
 const int kDefaultTimeoutSeconds = 10;
 
-// ألوان/أساليب بسيطة يمكن استدعاؤها كمراجع إن احتجت
-// (يمكنك توسيع الملف لاحقًا حسب الحاجة)

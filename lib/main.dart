@@ -13,7 +13,7 @@ final FlutterLocalNotificationsPlugin notificationsPlugin =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env"); // <-- added
+  await dotenv.load(fileName: ".env"); 
 
   const AndroidInitializationSettings androidSettings =
       AndroidInitializationSettings("@mipmap/ic_launcher");

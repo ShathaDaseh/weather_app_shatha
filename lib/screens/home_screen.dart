@@ -13,7 +13,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // اقرأ الـ Provider بعد الإطار الأول لتجنُّب ProviderNotFound
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<WeatherProvider>().fetchInitialDataIfNeeded();
     });

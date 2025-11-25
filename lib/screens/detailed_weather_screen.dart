@@ -8,7 +8,6 @@ class DetailedWeatherScreen extends StatefulWidget {
   const DetailedWeatherScreen({super.key, required this.city});
 
   @override
-  // ignore: library_private_types_in_public_api
   _DetailedWeatherScreenState createState() => _DetailedWeatherScreenState();
 }
 

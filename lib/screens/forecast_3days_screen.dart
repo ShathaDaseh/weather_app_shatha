@@ -55,7 +55,7 @@ class Forecast3DaysScreen extends StatelessWidget {
         child: ElevatedButton.icon(
           onPressed: () async {
             final city = provider.selectedCity ?? provider.city;
-            if (city == null || city.isEmpty) {
+            if (city.isEmpty) {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(const SnackBar(content: Text('No city selected')));

@@ -1,39 +1,60 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../services/weather_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class WeatherProvider extends ChangeNotifier {
-  String city = 'Cairo';
-  double? tempC;
-  String? condition;
-  String? iconUrl;
-  bool loading = false;
-  String? error;
+  WeatherProvider();
 
   final WeatherService _service = WeatherService();
   final LocationService _locationService = LocationService();
   final NotificationService _notifier = NotificationService();
 
-  Map<String, dynamic>? forecast3Days;
-
-  Map<String, dynamic>? currentWeather;
-
+  String city = 'Cairo';
   String? selectedCity;
 
-  bool isLoading = false;
+  double? tempC;
+  String? condition;
+  String? iconUrl;
 
+  Map<String, dynamic>? currentWeather;
+  Map<String, dynamic>? forecast3Days;
+
+  /// Quick preview cache for the cities list so every row can show live data.
+  final Map<String, Map<String, String>> cityPreviewCache = {};
+
+  bool loading = false;
+  bool isLoading = false;
+  String? error;
   String? errorMessage;
 
-  void checkAlerts() {
-    if (forecast3Days != null) {
-      final alerts = forecast3Days!["alerts"]["alert"];
-      if (alerts != null && alerts.isNotEmpty) {
-        _notifier.showWeatherAlert(alerts[0]["headline"]);
-      }
+  Future<void> _checkAlertsFromForecast(Map<String, dynamic> forecast) async {
+    final alerts = forecast["alerts"]?["alert"] as List<dynamic>?;
+    if (alerts != null && alerts.isNotEmpty) {
+      await _notifier.showWeatherAlert(alerts.first["headline"] ?? "Weather");
+      return;
+    }
+
+    final days = (forecast["forecast"]?["forecastday"] as List<dynamic>?) ?? [];
+    final hasRain = days.any(
+      (d) => (d["day"]?["daily_chance_of_rain"] as num? ?? 0) >= 60,
+    );
+    final hasSnow = days.any(
+      (d) => (d["day"]?["daily_chance_of_snow"] as num? ?? 0) >= 40,
+    );
+    final hasStorm = days.any((d) {
+      final text = (d["day"]?["condition"]?["text"] as String?) ?? "";
+      return text.toLowerCase().contains("storm");
+    });
+
+    if (hasRain || hasSnow || hasStorm) {
+      final message = hasStorm
+          ? "Storm conditions expected in $city."
+          : hasSnow
+          ? "Snow is likely soon in $city."
+          : "Rain expected soon in $city.";
+      await _notifier.showWeatherAlert(message);
     }
   }
 
@@ -50,22 +71,20 @@ class WeatherProvider extends ChangeNotifier {
       return;
     }
 
-    final url =
-        'https://api.weatherapi.com/v1/current.json?key=$key&q=${Uri.encodeComponent(q)}&aqi=no';
-
     try {
-      final res = await http.get(Uri.parse(url));
-      if (res.statusCode == 200) {
-        final data = json.decode(res.body) as Map<String, dynamic>;
-        city = data['location']['name'] ?? city;
-        tempC = (data['current']['temp_c'] as num?)?.toDouble();
-        condition = data['current']['condition']?['text'] as String?;
-        final icon = data['current']['condition']?['icon'] as String?;
-        iconUrl = icon != null ? 'https:$icon' : null;
-        error = null;
-      } else {
-        error = 'API error ${res.statusCode}';
-      }
+      final current = await _service.getCurrentWeather(q);
+      final forecast = await _service.getForecast3Days(q);
+
+      city = current['location']['name'] ?? city;
+      selectedCity = city;
+      tempC = (current['current']['temp_c'] as num?)?.toDouble();
+      condition = current['current']['condition']?['text'] as String?;
+      final icon = current['current']['condition']?['icon'] as String?;
+      iconUrl = icon != null ? 'https:$icon' : null;
+
+      currentWeather = current;
+      forecast3Days = forecast;
+      await _checkAlertsFromForecast(forecast);
     } catch (e) {
       error = e.toString();
     }
@@ -74,28 +93,49 @@ class WeatherProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchCityPreview(String cityName) async {
+    if (cityPreviewCache.containsKey(cityName)) return;
+    try {
+      final current = await _service.getCurrentWeather(cityName);
+      cityPreviewCache[cityName] = {
+        "temp": (current['current']['temp_c'] as num).toStringAsFixed(0),
+        "condition": current['current']['condition']?['text'] as String? ??
+            "Unknown",
+        "icon": "https:${current['current']['condition']?['icon']}",
+      };
+      notifyListeners();
+    } catch (_) {
+      cityPreviewCache[cityName] = {
+        "temp": "--",
+        "condition": "Unavailable",
+        "icon": "//cdn.weatherapi.com/weather/64x64/day/113.png",
+      };
+      notifyListeners();
+    }
+  }
+
   Future<void> loadWeatherByGPS() async {
     try {
       isLoading = true;
+      errorMessage = null;
       notifyListeners();
 
       final position = await _locationService.getCurrentLocation();
       final lat = position.latitude;
       final lon = position.longitude;
 
-      currentWeather = await _service.getCurrentWeather("$lat,$lon");
-
-      forecast3Days = await _service.getForecast3Days("$lat,$lon");
-
-      selectedCity = currentWeather!["location"]["name"];
-
-      isLoading = false;
-      notifyListeners();
+      await fetchWeather("$lat,$lon");
     } catch (e) {
       errorMessage = e.toString();
+    } finally {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> refreshSelectedCity() async {
+    if ((selectedCity ?? '').isEmpty) return;
+    await fetchWeather(selectedCity!);
   }
 
   Future<void> fetchInitialDataIfNeeded() async {

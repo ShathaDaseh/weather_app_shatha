@@ -4,11 +4,18 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class WeatherService {
   static const String _baseUrl = "https://api.weatherapi.com/v1";
+  static const String _dartDefineKey =
+      String.fromEnvironment('WEATHER_API_KEY', defaultValue: '');
+
+  String _resolveKey() {
+    final envKey = dotenv.env['WEATHER_API_KEY'] ?? '';
+    return envKey.isNotEmpty ? envKey : _dartDefineKey;
+  }
 
   Future<Map<String, dynamic>> getCurrentWeather(String city) async {
-    final key = dotenv.env['WEATHER_API_KEY'] ?? '';
+    final key = _resolveKey();
     if (key.isEmpty) {
-      throw Exception('Missing WEATHER_API_KEY in .env');
+      throw Exception('Missing WEATHER_API_KEY (provide via .env or --dart-define)');
     }
     final url = Uri.parse(
       "$_baseUrl/current.json?key=${Uri.encodeComponent(key)}&q=${Uri.encodeComponent(city)}&aqi=no",
@@ -24,9 +31,9 @@ class WeatherService {
 
   // New: generic forecast fetch for N days
   Future<Map<String, dynamic>> getForecast(String city, int days) async {
-    final key = dotenv.env['WEATHER_API_KEY'] ?? '';
+    final key = _resolveKey();
     if (key.isEmpty) {
-      throw Exception('Missing WEATHER_API_KEY in .env');
+      throw Exception('Missing WEATHER_API_KEY (provide via .env or --dart-define)');
     }
     if (days < 1 || days > 10) {
       throw Exception('days must be between 1 and 10');

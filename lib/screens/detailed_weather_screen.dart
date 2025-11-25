@@ -8,6 +8,7 @@ class DetailedWeatherScreen extends StatefulWidget {
   const DetailedWeatherScreen({super.key, required this.city});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DetailedWeatherScreenState createState() => _DetailedWeatherScreenState();
 }
 
@@ -59,46 +60,85 @@ class _DetailedWeatherScreenState extends State<DetailedWeatherScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('3-Day Forecast for ${widget.city}')),
       body: _loading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _forecastData == null
-          ? Center(child: Text('No data available'))
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _forecastData['forecast']['forecastday'].length,
-                    itemBuilder: (context, index) {
-                      final day =
-                          _forecastData['forecast']['forecastday'][index];
-                      return Card(
-                        margin: EdgeInsets.all(8),
-                        child: ListTile(
-                          leading: Image.network(
-                            "https:${day['day']['condition']['icon']}",
-                          ),
-                          title: Text(day['date']),
-                          subtitle: Text(
-                            "Max: ${day['day']['maxtemp_c']} °C, Min: ${day['day']['mintemp_c']} °C",
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+          ? const Center(child: Text('No data available'))
+          : Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFc2e9fb), Color(0xFFa1c4fd)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: TextButton(
-                    onPressed: _openMap,
-                    child: Text(
-                      'Open weather map for ${widget.city}',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline,
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _forecastData['forecast']['forecastday'].length,
+                      itemBuilder: (context, index) {
+                        final day = _forecastData['forecast']['forecastday'][index];
+                        return Card(
+                          margin: const EdgeInsets.all(12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                Image.network(
+                                  "https:${day['day']['condition']['icon']}",
+                                  width: 64,
+                                  height: 64,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        day['date'],
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(day['day']['condition']['text']),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Max: ${day['day']['maxtemp_c']} °C • Min: ${day['day']['mintemp_c']} °C",
+                                      ),
+                                      Text(
+                                        "Chance of rain: ${day['day']['daily_chance_of_rain']}%",
+                                        style: const TextStyle(color: Colors.blueGrey),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: TextButton(
+                      onPressed: _openMap,
+                      child: Text(
+                        'Open weather map for ${widget.city}',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
     );
   }

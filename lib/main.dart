@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -13,7 +14,14 @@ final FlutterLocalNotificationsPlugin notificationsPlugin =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env"); 
+  // For web we expect the API key via --dart-define; skip loading .env asset.
+  if (!kIsWeb) {
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      debugPrint("dotenv load failed: $e");
+    }
+  }
 
   const AndroidInitializationSettings androidSettings =
       AndroidInitializationSettings("@mipmap/ic_launcher");

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/weather_card.dart';
+import 'detailed_weather_screen.dart';
 
 class CitiesScreen extends StatefulWidget {
   const CitiesScreen({super.key});
@@ -18,10 +19,22 @@ class _CitiesScreenState extends State<CitiesScreen> {
     "Bethlehem",
     "Gaza",
     "Nablus",
+    "Cairo",
+    "Amman",
   ];
 
   String _filter = "";
-  String? selectedCity;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<WeatherProvider>();
+      for (final city in _allCities) {
+        provider.fetchCityPreview(city);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,26 +96,36 @@ class _CitiesScreenState extends State<CitiesScreen> {
               itemCount: filtered.length,
               itemBuilder: (context, index) {
                 final city = filtered[index];
-                final isSelected = provider.selectedCity == city;
+                final preview = provider.cityPreviewCache[city];
+                final temp = preview != null ? preview["temp"] ?? "--" : "--";
+                final condition =
+                    preview != null ? preview["condition"] ?? "Loading..." : "Loading...";
+                final iconUrl = preview != null
+                    ? preview["icon"] ?? "//cdn.weatherapi.com/weather/64x64/day/113.png"
+                    : "//cdn.weatherapi.com/weather/64x64/day/113.png";
 
                 return WeatherCard(
                   city: city,
-                  temp: isSelected && provider.tempC != null
-                      ? provider.tempC!.toString()
-                      : "--",
-                  conditionText: isSelected && provider.condition != null
-                      ? provider.condition!
-                      : "Tap to load",
-                  iconUrl: isSelected && provider.iconUrl != null
-                      ? provider.iconUrl!
-                      : "//cdn.weatherapi.com/weather/64x64/day/113.png",
+                  temp: temp,
+                  conditionText: condition,
+                  iconUrl: iconUrl,
                   onTap: () async {
                     final prov = context.read<WeatherProvider>();
                     final navigator = Navigator.of(context);
                     await prov.fetchWeather(city);
                     if (!mounted) return;
-                    prov.selectedCity = city;
                     navigator.pushNamed('/forecast3days', arguments: city);
+                  },
+                  onDetails: () async {
+                    final prov = context.read<WeatherProvider>();
+                    await prov.fetchWeather(city);
+                    if (!mounted) return;
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => DetailedWeatherScreen(city: city),
+                      ),
+                    );
                   },
                 );
               },
@@ -111,13 +134,5 @@ class _CitiesScreenState extends State<CitiesScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> loadWeatherForCity(String city) async {
-    final prov = context.read<WeatherProvider>();
-    await prov.fetchWeather(city);
-    setState(() {
-      selectedCity = city;
-    });
   }
 }

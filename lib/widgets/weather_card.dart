@@ -6,6 +6,7 @@ class WeatherCard extends StatelessWidget {
   final String conditionText;
   final String iconUrl;
   final VoidCallback? onTap;
+  final VoidCallback? onDetails;
 
   const WeatherCard({
     super.key,
@@ -14,21 +15,35 @@ class WeatherCard extends StatelessWidget {
     required this.conditionText,
     required this.iconUrl,
     this.onTap,
+    this.onDetails,
   });
 
   @override
   Widget build(BuildContext context) {
+    final normalizedIcon =
+        iconUrl.startsWith('http') ? iconUrl : "https:$iconUrl";
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ListTile(
         onTap: onTap,
-        leading: Image.network("https:$iconUrl"),
+        leading: Image.network(normalizedIcon),
         title: Text(city, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(conditionText),
-        trailing: Text(
-          "$temp°C",
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "$temp °C",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            if (onDetails != null)
+              IconButton(
+                icon: const Icon(Icons.info_outline),
+                onPressed: onDetails,
+              ),
+          ],
         ),
       ),
     );

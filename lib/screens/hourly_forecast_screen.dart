@@ -31,7 +31,7 @@ class HourlyForecastScreen extends StatelessWidget {
               leading: Image.network("https:${h["condition"]["icon"]}"),
               title: Text(h["time"]),
               subtitle: Text(h["condition"]["text"]),
-              trailing: Text("${h["temp_c"]}°C"),
+              trailing: Text("${h["temp_c"]} °C"),
             ),
           );
         },

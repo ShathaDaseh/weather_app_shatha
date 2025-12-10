@@ -24,7 +24,6 @@ class HourlyForecastScreen extends StatelessWidget {
       appBar: AppBar(title: Text("Hourly - ${provider.selectedCity}")),
       drawer: const AppDrawer(),
 
-      // 🔥 عرض أفقي (يعطي شكل أفضل لساعات اليوم)
       body: SizedBox(
         height: 160,
         child: ListView.builder(
@@ -33,7 +32,7 @@ class HourlyForecastScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             final h = hours[index];
             return HourlyWeatherItem(
-              hour: h.time.substring(11), // "09:00"
+              hour: h.time.substring(11), 
               temp: h.tempC.toString(),
               iconUrl: h.iconUrl,
             );

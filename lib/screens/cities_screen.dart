@@ -52,7 +52,6 @@ class _CitiesScreenState extends State<CitiesScreen> {
         children: [
           const SizedBox(height: 12),
 
-          // 🔍 Filter input
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -66,7 +65,6 @@ class _CitiesScreenState extends State<CitiesScreen> {
 
           const SizedBox(height: 12),
 
-          // 📜 Cities list
           Expanded(
             child: ListView.builder(
               itemCount: filtered.length,

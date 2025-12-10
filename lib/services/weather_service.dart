@@ -51,7 +51,6 @@ class WeatherService {
     return jsonDecode(res.body) as Map<String, dynamic>;
   }
 
-  // Keep backward-compatible helper
   Future<Map<String, dynamic>> getForecast3Days(String city) =>
       getForecast(city, 3);
 }

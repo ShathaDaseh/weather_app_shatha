@@ -33,7 +33,6 @@ class WeatherCard extends StatelessWidget {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 
-        // 🖼️ FIXED: تحديد حجم الصورة حتى لا تكبر فوق الحد
         leading: Image.network(
           normalizedIcon,
           width: 45,
@@ -51,9 +50,8 @@ class WeatherCard extends StatelessWidget {
           style: const TextStyle(fontSize: 14),
         ),
 
-        // ✔️ FIXED: منع الـ Column من طلب ارتفاع كبير
         trailing: Column(
-          mainAxisSize: MainAxisSize.min, // 👈 الحل الأساسي
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
@@ -62,7 +60,7 @@ class WeatherCard extends StatelessWidget {
             ),
             if (onDetails != null)
               IconButton(
-                padding: EdgeInsets.zero, // 👈 حتى لا يزيد الحجم العمودي
+                padding: EdgeInsets.zero, 
                 constraints: const BoxConstraints(),
                 icon: const Icon(Icons.info_outline, size: 22),
                 onPressed: onDetails,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/hourly_weather_item.dart';
 
 class HourlyForecastScreen extends StatelessWidget {
   const HourlyForecastScreen({super.key});
@@ -22,20 +23,22 @@ class HourlyForecastScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text("Hourly - ${provider.selectedCity}")),
       drawer: const AppDrawer(),
-      body: ListView.builder(
-        itemCount: hours.length,
-        itemBuilder: (context, index) {
-          final h = hours[index];
-          return Card(
-            margin: const EdgeInsets.all(10),
-            child: ListTile(
-              leading: Image.network(h.iconUrl),
-              title: Text(h.time),
-              subtitle: Text(h.condition),
-              trailing: Text("${h.tempC} °C"),
-            ),
-          );
-        },
+
+      // 🔥 عرض أفقي (يعطي شكل أفضل لساعات اليوم)
+      body: SizedBox(
+        height: 160,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: hours.length,
+          itemBuilder: (context, index) {
+            final h = hours[index];
+            return HourlyWeatherItem(
+              hour: h.time.substring(11), // "09:00"
+              temp: h.tempC.toString(),
+              iconUrl: h.iconUrl,
+            );
+          },
+        ),
       ),
     );
   }

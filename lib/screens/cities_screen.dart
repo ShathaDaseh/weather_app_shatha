@@ -51,6 +51,8 @@ class _CitiesScreenState extends State<CitiesScreen> {
       body: Column(
         children: [
           const SizedBox(height: 12),
+
+          // 🔍 Filter input
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -58,26 +60,24 @@ class _CitiesScreenState extends State<CitiesScreen> {
                 labelText: "Filter cities",
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: (value) {
-                setState(() => _filter = value);
-              },
+              onChanged: (value) => setState(() => _filter = value),
             ),
           ),
+
           const SizedBox(height: 12),
+
+          // 📜 Cities list
           Expanded(
             child: ListView.builder(
               itemCount: filtered.length,
               itemBuilder: (context, index) {
                 final city = filtered[index];
                 final preview = provider.cityPreviewCache[city];
-                final temp = preview != null ? preview["temp"] ?? "--" : "--";
-                final condition = preview != null
-                    ? preview["condition"] ?? "Loading..."
-                    : "Loading...";
-                final iconUrl = preview != null
-                    ? preview["icon"] ??
-                        "//cdn.weatherapi.com/weather/64x64/day/113.png"
-                    : "//cdn.weatherapi.com/weather/64x64/day/113.png";
+
+                final temp = preview?["temp"] ?? "--";
+                final condition = preview?["condition"] ?? "Loading...";
+                final iconUrl = preview?["icon"] ??
+                    "//cdn.weatherapi.com/weather/64x64/day/113.png";
 
                 return WeatherCard(
                   city: city,
@@ -85,18 +85,19 @@ class _CitiesScreenState extends State<CitiesScreen> {
                   conditionText: condition,
                   iconUrl: iconUrl,
                   onTap: () async {
-                    final prov = context.read<WeatherProvider>();
-                    final navigator = Navigator.of(context);
-                    await prov.fetchWeather(city);
+                    await context.read<WeatherProvider>().fetchWeather(city);
                     if (!mounted) return;
-                    navigator.pushNamed('/forecast3days', arguments: city);
+                    Navigator.pushNamed(
+                      context,
+                      '/forecast3days',
+                      arguments: city,
+                    );
                   },
                   onDetails: () async {
-                    final prov = context.read<WeatherProvider>();
-                    await prov.fetchWeather(city);
+                    await context.read<WeatherProvider>().fetchWeather(city);
                     if (!mounted) return;
-                    // ignore: use_build_context_synchronously
-                    Navigator.of(context).push(
+                    Navigator.push(
+                      context,
                       MaterialPageRoute(
                         builder: (_) => DetailedWeatherScreen(city: city),
                       ),

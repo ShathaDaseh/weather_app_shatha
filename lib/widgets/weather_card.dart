@@ -25,14 +25,36 @@ class WeatherCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: ListTile(
         onTap: onTap,
-        leading: Image.network(normalizedIcon),
-        title: Text(city, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(conditionText),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
+        // 🖼️ FIXED: تحديد حجم الصورة حتى لا تكبر فوق الحد
+        leading: Image.network(
+          normalizedIcon,
+          width: 45,
+          height: 45,
+          fit: BoxFit.contain,
+        ),
+
+        title: Text(
+          city,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+
+        subtitle: Text(
+          conditionText,
+          style: const TextStyle(fontSize: 14),
+        ),
+
+        // ✔️ FIXED: منع الـ Column من طلب ارتفاع كبير
         trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min, // 👈 الحل الأساسي
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               "$temp °C",
@@ -40,7 +62,9 @@ class WeatherCard extends StatelessWidget {
             ),
             if (onDetails != null)
               IconButton(
-                icon: const Icon(Icons.info_outline),
+                padding: EdgeInsets.zero, // 👈 حتى لا يزيد الحجم العمودي
+                constraints: const BoxConstraints(),
+                icon: const Icon(Icons.info_outline, size: 22),
                 onPressed: onDetails,
               ),
           ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/weather_provider.dart';
+import '../widgets/app_drawer.dart';
 
 class Forecast3DaysScreen extends StatelessWidget {
   const Forecast3DaysScreen({super.key});
@@ -9,18 +10,17 @@ class Forecast3DaysScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<WeatherProvider>();
-    final forecast = provider.forecast3Days;
+    final days = provider.forecastDays;
 
-    if (forecast == null) {
+    if (days == null || days.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text("3 Days Forecast")),
+        drawer: const AppDrawer(),
         body: const Center(
           child: Text("No forecast data. Go back and load a city."),
         ),
       );
     }
-
-    final List days = forecast["forecast"]["forecastday"];
 
     return Scaffold(
       appBar: AppBar(title: Text("3 Days - ${provider.selectedCity}")),
@@ -68,11 +68,13 @@ class Forecast3DaysScreen extends StatelessWidget {
               if (await canLaunchUrl(uri)) {
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
               } else {
+                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Could not open map')),
                 );
               }
             } catch (_) {
+              // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Error while opening map')),
               );

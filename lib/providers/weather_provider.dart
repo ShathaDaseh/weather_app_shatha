@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import '../services/location_service.dart';
 import '../services/notification_service.dart';
 import '../services/weather_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/weather.dart';
 import '../models/forecast_day.dart';
 import '../models/forecast_hour.dart';
@@ -67,9 +66,11 @@ class WeatherProvider extends ChangeNotifier {
     error = null;
     notifyListeners();
 
-    final key = dotenv.env['WEATHER_API_KEY'] ?? '';
+    final key =
+        const String.fromEnvironment('WEATHER_API_KEY', defaultValue: '');
     if (key.isEmpty) {
-      error = 'Missing WEATHER_API_KEY in .env';
+      error =
+          'Missing WEATHER_API_KEY (provide via --dart-define WEATHER_API_KEY=your_key)';
       loading = false;
       notifyListeners();
       return;

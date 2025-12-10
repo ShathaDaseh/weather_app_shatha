@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/weather_card.dart';
+import '../widgets/app_drawer.dart';
 import 'detailed_weather_screen.dart';
 
 class CitiesScreen extends StatefulWidget {
@@ -46,35 +47,7 @@ class _CitiesScreenState extends State<CitiesScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Cities List")),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.lightBlueAccent],
-                ),
-              ),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Text(
-                  "Weather App",
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text("Home"),
-              onTap: () => Navigator.pushReplacementNamed(context, '/'),
-            ),
-          ],
-        ),
-      ),
+      drawer: const AppDrawer(),
       body: Column(
         children: [
           const SizedBox(height: 12),
@@ -98,10 +71,12 @@ class _CitiesScreenState extends State<CitiesScreen> {
                 final city = filtered[index];
                 final preview = provider.cityPreviewCache[city];
                 final temp = preview != null ? preview["temp"] ?? "--" : "--";
-                final condition =
-                    preview != null ? preview["condition"] ?? "Loading..." : "Loading...";
+                final condition = preview != null
+                    ? preview["condition"] ?? "Loading..."
+                    : "Loading...";
                 final iconUrl = preview != null
-                    ? preview["icon"] ?? "//cdn.weatherapi.com/weather/64x64/day/113.png"
+                    ? preview["icon"] ??
+                        "//cdn.weatherapi.com/weather/64x64/day/113.png"
                     : "//cdn.weatherapi.com/weather/64x64/day/113.png";
 
                 return WeatherCard(
@@ -120,6 +95,7 @@ class _CitiesScreenState extends State<CitiesScreen> {
                     final prov = context.read<WeatherProvider>();
                     await prov.fetchWeather(city);
                     if (!mounted) return;
+                    // ignore: use_build_context_synchronously
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => DetailedWeatherScreen(city: city),

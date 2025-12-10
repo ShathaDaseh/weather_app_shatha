@@ -28,25 +28,19 @@ class Forecast3DaysScreen extends StatelessWidget {
         itemCount: days.length,
         itemBuilder: (context, index) {
           final day = days[index];
-          final date = day["date"];
-          final condition = day["day"]["condition"]["text"];
-          final icon = day["day"]["condition"]["icon"];
-          final maxTemp = day["day"]["maxtemp_c"];
-          final minTemp = day["day"]["mintemp_c"];
-          final chanceOfRain = day["day"]["daily_chance_of_rain"];
-
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: ListTile(
-              leading: Image.network("https:$icon"),
-              title: Text(date),
-              subtitle: Text("$condition\nRain chance: $chanceOfRain%"),
+              leading: Image.network(day.iconUrl),
+              title: Text(day.date),
+              subtitle:
+                  Text("${day.condition}\nRain chance: ${day.chanceOfRain}%"),
               isThreeLine: true,
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Max: $maxTemp °C"),
-                  Text("Min: $minTemp °C"),
+                  Text("Max: ${day.maxTempC} °C"),
+                  Text("Min: ${day.minTempC} °C"),
                 ],
               ),
             ),
@@ -74,13 +68,11 @@ class Forecast3DaysScreen extends StatelessWidget {
               if (await canLaunchUrl(uri)) {
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
               } else {
-                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Could not open map')),
                 );
               }
             } catch (_) {
-              // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Error while opening map')),
               );

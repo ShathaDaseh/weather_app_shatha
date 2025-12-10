@@ -120,7 +120,6 @@ class _CitiesScreenState extends State<CitiesScreen> {
                     final prov = context.read<WeatherProvider>();
                     await prov.fetchWeather(city);
                     if (!mounted) return;
-                    // ignore: use_build_context_synchronously
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => DetailedWeatherScreen(city: city),

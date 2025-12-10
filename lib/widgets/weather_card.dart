@@ -5,7 +5,6 @@ class WeatherCard extends StatelessWidget {
   final String temp;
   final String conditionText;
   final String iconUrl;
-  final VoidCallback? onTap;
   final VoidCallback? onDetails;
 
   const WeatherCard({
@@ -14,7 +13,6 @@ class WeatherCard extends StatelessWidget {
     required this.temp,
     required this.conditionText,
     required this.iconUrl,
-    this.onTap,
     this.onDetails,
   });
 
@@ -29,7 +27,7 @@ class WeatherCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(
-        onTap: onTap,
+        onTap: onDetails,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 

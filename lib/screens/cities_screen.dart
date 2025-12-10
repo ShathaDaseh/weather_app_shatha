@@ -51,7 +51,6 @@ class _CitiesScreenState extends State<CitiesScreen> {
       body: Column(
         children: [
           const SizedBox(height: 12),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -62,9 +61,7 @@ class _CitiesScreenState extends State<CitiesScreen> {
               onChanged: (value) => setState(() => _filter = value),
             ),
           ),
-
           const SizedBox(height: 12),
-
           Expanded(
             child: ListView.builder(
               itemCount: filtered.length,
@@ -82,19 +79,11 @@ class _CitiesScreenState extends State<CitiesScreen> {
                   temp: temp,
                   conditionText: condition,
                   iconUrl: iconUrl,
-                  onTap: () async {
-                    await context.read<WeatherProvider>().fetchWeather(city);
-                    if (!mounted) return;
-                    Navigator.pushNamed(
-                      context,
-                      '/forecast3days',
-                      arguments: city,
-                    );
-                  },
                   onDetails: () async {
                     await context.read<WeatherProvider>().fetchWeather(city);
                     if (!mounted) return;
                     Navigator.push(
+                      // ignore: use_build_context_synchronously
                       context,
                       MaterialPageRoute(
                         builder: (_) => DetailedWeatherScreen(city: city),

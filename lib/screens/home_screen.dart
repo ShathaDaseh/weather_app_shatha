@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weather_app/screens/detailed_weather_screen.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/app_drawer.dart';
 
@@ -162,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    onPressed: prov.isLoading
+                                    onPressed: prov.loading
                                         ? null
                                         : prov.loadWeatherByGPS,
                                     icon: const Icon(Icons.my_location),
@@ -172,9 +173,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: ElevatedButton.icon(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/cities');
-                                    },
+                                    onPressed: prov.loading
+                                        ? null
+                                        : () {
+                                            Navigator.pushNamed(
+                                                context, '/cities');
+                                          },
                                     icon: const Icon(Icons.list_alt),
                                     label: const Text("Choose city"),
                                   ),
@@ -189,10 +193,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Expanded(
                                   child: OutlinedButton.icon(
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                          context, '/forecast3days');
-                                    },
+                                    onPressed: prov.loading ||
+                                            (prov.selectedCity ?? '').isEmpty
+                                        ? null
+                                        : () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        DetailedWeatherScreen(
+                                                            city: prov
+                                                                .selectedCity!)));
+                                          },
                                     icon: const Icon(Icons.calendar_today),
                                     label: const Text('3-day Forecast'),
                                   ),
@@ -200,9 +212,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: OutlinedButton.icon(
-                                    onPressed: () {
-                                      Navigator.pushNamed(context, '/hourly');
-                                    },
+                                    onPressed: prov.loading ||
+                                            (prov.selectedCity ?? '').isEmpty
+                                        ? null
+                                        : () {
+                                            Navigator.pushNamed(
+                                                context, '/hourly');
+                                          },
                                     icon: const Icon(Icons.schedule),
                                     label: const Text('Hourly Forecast'),
                                   ),
@@ -210,13 +226,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ),
-                          if (prov.isLoading || prov.errorMessage != null)
+                          if (prov.loading &&
+                              prov.error ==
+                                  null) // Show loading message for GPS specifically
                             Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: Text(
-                                prov.isLoading
-                                    ? "Loading weather for your location..."
-                                    : prov.errorMessage ?? '',
+                                "Loading weather for your location...",
                                 style: const TextStyle(color: Colors.black54),
                               ),
                             ),

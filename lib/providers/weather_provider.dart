@@ -28,9 +28,8 @@ class WeatherProvider extends ChangeNotifier {
   final Map<String, Map<String, String>> cityPreviewCache = {};
 
   bool loading = false;
-  bool isLoading = false;
+
   String? error;
-  String? errorMessage;
 
   Future<void> _checkAlertsFromForecast(Map<String, dynamic> forecast) async {
     final alerts = forecast["alerts"]?["alert"] as List<dynamic>?;
@@ -133,19 +132,18 @@ class WeatherProvider extends ChangeNotifier {
 
   Future<void> loadWeatherByGPS() async {
     try {
-      isLoading = true;
-      errorMessage = null;
+      loading = true;
+      error = null;
       notifyListeners();
 
       final position = await _locationService.getCurrentLocation();
       final lat = position.latitude;
       final lon = position.longitude;
 
-      await fetchWeather("$lat,$lon");
+      await fetchWeather("$lat,$lon"); // fetchWeather will set loading to false
     } catch (e) {
-      errorMessage = e.toString();
-    } finally {
-      isLoading = false;
+      error = e.toString();
+      loading = false; // Ensure loading is false on error
       notifyListeners();
     }
   }

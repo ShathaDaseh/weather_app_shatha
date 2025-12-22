@@ -1,27 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:weather_app/providers/weather_provider.dart';
 import 'package:weather_app/screens/home_screen.dart';
 import 'package:weather_app/screens/cities_screen.dart';
 import 'package:weather_app/screens/forecast_3days_screen.dart';
 import 'package:weather_app/screens/hourly_forecast_screen.dart';
 
-final FlutterLocalNotificationsPlugin notificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  const AndroidInitializationSettings androidSettings =
-      AndroidInitializationSettings("@mipmap/ic_launcher");
-
-  const InitializationSettings initSettings = InitializationSettings(
-    android: androidSettings,
-  );
-
-  await notificationsPlugin.initialize(initSettings);
-
+void main() {
   runApp(
     MultiProvider(
       providers: [

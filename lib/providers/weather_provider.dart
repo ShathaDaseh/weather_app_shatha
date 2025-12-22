@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import '../services/location_service.dart';
-import '../services/notification_service.dart';
 import '../services/weather_service.dart';
 import '../models/weather.dart';
 import '../models/forecast_day.dart';
@@ -11,8 +10,6 @@ class WeatherProvider extends ChangeNotifier {
 
   final WeatherService _service = WeatherService();
   final LocationService _locationService = LocationService();
-  final NotificationService _notifier = NotificationService();
-
   String city = 'Cairo';
   String? selectedCity;
 
@@ -30,35 +27,6 @@ class WeatherProvider extends ChangeNotifier {
   bool loading = false;
 
   String? error;
-
-  Future<void> _checkAlertsFromForecast(Map<String, dynamic> forecast) async {
-    final alerts = forecast["alerts"]?["alert"] as List<dynamic>?;
-    if (alerts != null && alerts.isNotEmpty) {
-      await _notifier.showWeatherAlert(alerts.first["headline"] ?? "Weather");
-      return;
-    }
-
-    final days = (forecast["forecast"]?["forecastday"] as List<dynamic>?) ?? [];
-    final hasRain = days.any(
-      (d) => (d["day"]?["daily_chance_of_rain"] as num? ?? 0) >= 60,
-    );
-    final hasSnow = days.any(
-      (d) => (d["day"]?["daily_chance_of_snow"] as num? ?? 0) >= 40,
-    );
-    final hasStorm = days.any((d) {
-      final text = (d["day"]?["condition"]?["text"] as String?) ?? "";
-      return text.toLowerCase().contains("storm");
-    });
-
-    if (hasRain || hasSnow || hasStorm) {
-      final message = hasStorm
-          ? "Storm conditions expected in $city."
-          : hasSnow
-              ? "Snow is likely soon in $city."
-              : "Rain expected soon in $city.";
-      await _notifier.showWeatherAlert(message);
-    }
-  }
 
   Future<void> fetchWeather(String q) async {
     loading = true;
@@ -100,7 +68,6 @@ class WeatherProvider extends ChangeNotifier {
         hourlyForecast = hours;
       }
 
-      await _checkAlertsFromForecast(forecast);
     } catch (e) {
       error = e.toString();
     }

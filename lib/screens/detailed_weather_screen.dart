@@ -109,13 +109,26 @@ class _DetailedWeatherScreenState extends State<DetailedWeatherScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(12.0),
-                        child: TextButton(
-                          onPressed: _openMap,
-                          child: Text(
-                            'Open weather map for ${widget.city}',
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _openMap,
+                            icon: const Icon(Icons.map_outlined),
+                            label: Text(
+                              'Open map for ${widget.city}',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.shade600,
+                              foregroundColor: Colors.white,
+                              elevation: 2,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                                horizontal: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                             ),
                           ),
                         ),

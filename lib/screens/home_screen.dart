@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:weather_app/screens/detailed_weather_screen.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/app_drawer.dart';
 
@@ -12,8 +11,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _cityController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -24,13 +21,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _cityController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final prov = context.watch<WeatherProvider>();
+    final screenSize = MediaQuery.of(context).size;
+    final cardWidth =
+        (screenSize.width * 0.6).clamp(220.0, 320.0).toDouble();
+    final cardHeight = (cardWidth * 1.35).clamp(260.0, 360.0).toDouble();
 
     return Scaffold(
       appBar: AppBar(
@@ -62,43 +62,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: TextField(
-                              controller: _cityController,
-                              textInputAction: TextInputAction.search,
-                              decoration: InputDecoration(
-                                hintText: "Enter city (e.g. Cairo, London)",
-                                prefixIcon: const Icon(Icons.search),
-                                suffixIcon: IconButton(
-                                  icon: const Icon(Icons.send),
-                                  onPressed: () async {
-                                    final query = _cityController.text.trim();
-                                    if (query.isEmpty) return;
-                                    await prov.fetchWeather(query);
-                                    if (!mounted) return;
-                                    // ignore: use_build_context_synchronously
-                                    FocusScope.of(context).unfocus();
-                                  },
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                              onSubmitted: (value) async {
-                                final query = value.trim();
-                                if (query.isEmpty) return;
-                                await prov.fetchWeather(query);
-                              },
-                            ),
-                          ),
                           Card(
                             margin: const EdgeInsets.symmetric(horizontal: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
                             elevation: 4,
-                            child: Container(
+                            child: SizedBox(
+                              width: cardWidth,
+                              height: cardHeight,
+                              child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 gradient: const LinearGradient(
@@ -111,36 +84,37 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               padding: const EdgeInsets.symmetric(
-                                vertical: 20,
-                                horizontal: 16,
+                                vertical: 22,
+                                horizontal: 18,
                               ),
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     prov.city,
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 22,
+                                      fontSize: 26,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 10),
                                   if (prov.iconUrl != null)
                                     Image.network(
                                       prov.iconUrl!,
-                                      width: 120,
-                                      height: 120,
+                                      width: 140,
+                                      height: 140,
                                       errorBuilder: (_, __, ___) =>
-                                          const SizedBox(height: 120),
+                                          const SizedBox(height: 140),
                                     ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 10),
                                   Text(
                                     prov.tempC != null
                                         ? '${prov.tempC!.toStringAsFixed(1)} °C'
                                         : '--',
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 40,
+                                      fontSize: 48,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -149,81 +123,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                     prov.condition ?? '',
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 18,
+                                      fontSize: 20,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: prov.loading
-                                        ? null
-                                        : prov.loadWeatherByGPS,
-                                    icon: const Icon(Icons.my_location),
-                                    label: const Text("Use my location"),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: ElevatedButton.icon(
-                                    onPressed: prov.loading
-                                        ? null
-                                        : () {
-                                            Navigator.pushNamed(
-                                                context, '/cities');
-                                          },
-                                    icon: const Icon(Icons.list_alt),
-                                    label: const Text("Choose city"),
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
                           const SizedBox(height: 12),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed: prov.loading ||
-                                            (prov.selectedCity ?? '').isEmpty
-                                        ? null
-                                        : () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        DetailedWeatherScreen(
-                                                            city: prov
-                                                                .selectedCity!)));
-                                          },
-                                    icon: const Icon(Icons.calendar_today),
-                                    label: const Text('3-day Forecast'),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed: prov.loading ||
-                                            (prov.selectedCity ?? '').isEmpty
-                                        ? null
-                                        : () {
-                                            Navigator.pushNamed(
-                                                context, '/hourly');
-                                          },
-                                    icon: const Icon(Icons.schedule),
-                                    label: const Text('Hourly Forecast'),
-                                  ),
-                                ),
-                              ],
+                            child: ElevatedButton.icon(
+                              onPressed:
+                                  prov.loading ? null : prov.loadWeatherByGPS,
+                              icon: const Icon(Icons.my_location),
+                              label: const Text("Use my location"),
                             ),
                           ),
                           if (prov.loading &&

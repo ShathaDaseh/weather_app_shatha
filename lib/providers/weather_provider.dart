@@ -28,6 +28,76 @@ class WeatherProvider extends ChangeNotifier {
 
   String? error;
 
+  DateTime? _tryParseForecastTime(String value) {
+    final normalized = value.replaceFirst(' ', 'T');
+    return DateTime.tryParse(normalized);
+  }
+
+  int? _readEpochSeconds(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return null;
+  }
+
+  int _resolveLocalEpoch(Map<String, dynamic> forecast) {
+    final epoch =
+        _readEpochSeconds(forecast['location']?['localtime_epoch']);
+    if (epoch != null) {
+      return epoch;
+    }
+    final localTime = forecast['location']?['localtime'] as String?;
+    final parsed =
+        localTime == null ? null : _tryParseForecastTime(localTime);
+    if (parsed == null) {
+      return DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    }
+    return parsed.millisecondsSinceEpoch ~/ 1000;
+  }
+
+  int? _resolveHourEpoch(Map<String, dynamic> hour) {
+    final epoch = _readEpochSeconds(hour['time_epoch']);
+    if (epoch != null) {
+      return epoch;
+    }
+    final timeValue = hour['time'] as String?;
+    if (timeValue == null) {
+      return null;
+    }
+    final parsed = _tryParseForecastTime(timeValue);
+    return parsed!.millisecondsSinceEpoch ~/ 1000;
+  }
+
+  List<ForecastHour> _buildNext12Hours(Map<String, dynamic> forecast) {
+    final nowEpoch = _resolveLocalEpoch(forecast);
+    final startEpoch = nowEpoch - (nowEpoch % 3600);
+    final endEpoch = startEpoch + (12 * 3600);
+    final result = <ForecastHour>[];
+
+    final days = forecast['forecast']?['forecastday'] as List<dynamic>?;
+    if (days == null) {
+      return result;
+    }
+
+    for (final day in days) {
+      final hours = (day as Map<String, dynamic>)['hour'] as List<dynamic>?;
+      if (hours == null) continue;
+      for (final hour in hours) {
+        if (hour is! Map<String, dynamic>) continue;
+        final hourEpoch = _resolveHourEpoch(hour);
+        if (hourEpoch == null) continue;
+        if (hourEpoch < startEpoch || hourEpoch >= endEpoch) {
+          continue;
+        }
+        result.add(ForecastHour.fromJson(hour));
+        if (result.length >= 12) {
+          return result;
+        }
+      }
+    }
+
+    return result;
+  }
+
   Future<void> fetchWeather(String q) async {
     loading = true;
     error = null;
@@ -59,14 +129,7 @@ class WeatherProvider extends ChangeNotifier {
           .toList();
       forecastDays = days;
 
-      // For hourly, take first day's hours
-      if (days.isNotEmpty) {
-        final hours =
-            (forecast['forecast']['forecastday'][0]['hour'] as List<dynamic>)
-                .map((h) => ForecastHour.fromJson(h))
-                .toList();
-        hourlyForecast = hours;
-      }
+      hourlyForecast = _buildNext12Hours(forecast);
 
     } catch (e) {
       error = e.toString();

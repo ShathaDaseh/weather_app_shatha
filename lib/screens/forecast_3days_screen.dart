@@ -49,39 +49,55 @@ class Forecast3DaysScreen extends StatelessWidget {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(12),
-        child: ElevatedButton.icon(
-          onPressed: () async {
-            final city = provider.selectedCity ?? provider.city;
-            if (city.isEmpty) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('No city selected')));
-              return;
-            }
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () async {
+              final city = provider.selectedCity ?? provider.city;
+              if (city.isEmpty) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(
+                    const SnackBar(content: Text('No city selected')));
+                return;
+              }
 
-            final encoded = Uri.encodeComponent(city);
-            final uri = Uri.parse(
-              "https://www.google.com/maps/search/?api=1&query=$encoded",
-            );
+              final encoded = Uri.encodeComponent(city);
+              final uri = Uri.parse(
+                "https://www.google.com/maps/search/?api=1&query=$encoded",
+              );
 
-            try {
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              } else {
+              try {
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } else {
+                  // ignore: use_build_context_synchronously
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Could not open map')),
+                  );
+                }
+              } catch (_) {
                 // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Could not open map')),
+                  const SnackBar(content: Text('Error while opening map')),
                 );
               }
-            } catch (_) {
-              // ignore: use_build_context_synchronously
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Error while opening map')),
-              );
-            }
-          },
-          icon: const Icon(Icons.map),
-          label: const Text("Open Weather Map"),
+            },
+            icon: const Icon(Icons.map_outlined),
+            label: const Text("Open map"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue.shade600,
+              foregroundColor: Colors.white,
+              elevation: 2,
+              padding: const EdgeInsets.symmetric(
+                vertical: 14,
+                horizontal: 16,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
         ),
       ),
     );

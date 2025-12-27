@@ -11,34 +11,40 @@ class HourlyForecastScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<WeatherProvider>();
     final hours = provider.hourlyForecast;
+    final city = provider.selectedCity ?? provider.city;
 
-    if (hours == null || hours.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text("Hourly Forecast")),
-        drawer: const AppDrawer(),
-        body: const Center(child: Text("Load a city first")),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(title: Text("Hourly - ${provider.selectedCity}")),
-      drawer: const AppDrawer(),
-
-      body: SizedBox(
+    Widget body;
+    if (provider.loading) {
+      body = const Center(child: CircularProgressIndicator());
+    } else if (provider.error != null) {
+      body = Center(child: Text(provider.error!));
+    } else if (hours == null || hours.isEmpty) {
+      body = const Center(child: Text("Load a city first"));
+    } else {
+      body = SizedBox(
         height: 160,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: hours.length,
           itemBuilder: (context, index) {
             final h = hours[index];
+            final label = h.time.length > 11 ? h.time.substring(11) : h.time;
             return HourlyWeatherItem(
-              hour: h.time.substring(11), 
-              temp: h.tempC.toString(),
+              hour: label,
+              temp: h.tempC.toStringAsFixed(0),
               iconUrl: h.iconUrl,
             );
           },
         ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(city.isEmpty ? "Hourly Forecast" : "Hourly - $city"),
       ),
+      drawer: const AppDrawer(),
+      body: body,
     );
   }
 }

@@ -20,11 +20,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final prov = context.watch<WeatherProvider>();
     final screenSize = MediaQuery.of(context).size;
@@ -63,7 +58,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Card(
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            margin:
+                                const EdgeInsets.symmetric(horizontal: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -72,68 +68,70 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: cardWidth,
                               height: cardHeight,
                               child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF4facfe),
-                                    Color(0xFF00f2fe)
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF4facfe),
+                                      Color(0xFF00f2fe)
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 22,
+                                  horizontal: 18,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      prov.city,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    if (prov.iconUrl != null)
+                                      Image.network(
+                                        prov.iconUrl!,
+                                        width: 140,
+                                        height: 140,
+                                        errorBuilder: (_, __, ___) =>
+                                            const SizedBox(height: 140),
+                                      ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      prov.tempC != null
+                                          ? '${prov.tempC!.toStringAsFixed(1)} °C'
+                                          : '--',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 48,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      prov.condition ?? '',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ),
                                   ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
                                 ),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 22,
-                                horizontal: 18,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    prov.city,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                  if (prov.iconUrl != null)
-                                    Image.network(
-                                      prov.iconUrl!,
-                                      width: 140,
-                                      height: 140,
-                                      errorBuilder: (_, __, ___) =>
-                                          const SizedBox(height: 140),
-                                    ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    prov.tempC != null
-                                        ? '${prov.tempC!.toStringAsFixed(1)} °C'
-                                        : '--',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    prov.condition ?? '',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
                             ),
                           ),
                           const SizedBox(height: 12),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                            ),
                             child: ElevatedButton.icon(
                               onPressed:
                                   prov.loading ? null : prov.loadWeatherByGPS,
@@ -141,16 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               label: const Text("Use my location"),
                             ),
                           ),
-                          if (prov.loading &&
-                              prov.error ==
-                                  null) // Show loading message for GPS specifically
-                            Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Text(
-                                "Loading weather for your location...",
-                                style: const TextStyle(color: Colors.black54),
-                              ),
-                            ),
                         ],
                       ),
                     ),

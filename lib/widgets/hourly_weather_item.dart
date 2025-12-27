@@ -39,7 +39,7 @@ class HourlyWeatherItem extends StatelessWidget {
             width: 40,
           ),
           const SizedBox(height: 6),
-          Text("$temp°C", style: const TextStyle(fontSize: 16)),
+          Text("$temp °C", style: const TextStyle(fontSize: 16)),
         ],
       ),
     );

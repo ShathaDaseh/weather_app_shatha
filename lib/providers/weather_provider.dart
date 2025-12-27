@@ -17,7 +17,6 @@ class WeatherProvider extends ChangeNotifier {
   String? condition;
   String? iconUrl;
 
-  Weather? currentWeather;
   List<ForecastDay>? forecastDays;
   List<ForecastHour>? hourlyForecast;
 
@@ -64,7 +63,10 @@ class WeatherProvider extends ChangeNotifier {
       return null;
     }
     final parsed = _tryParseForecastTime(timeValue);
-    return parsed!.millisecondsSinceEpoch ~/ 1000;
+    if (parsed == null) {
+      return null;
+    }
+    return parsed.millisecondsSinceEpoch ~/ 1000;
   }
 
   List<ForecastHour> _buildNext12Hours(Map<String, dynamic> forecast) {
@@ -103,26 +105,16 @@ class WeatherProvider extends ChangeNotifier {
     error = null;
     notifyListeners();
 
-    final key =
-        const String.fromEnvironment('WEATHER_API_KEY', defaultValue: '');
-    if (key.isEmpty) {
-      error =
-          'Missing WEATHER_API_KEY (provide via --dart-define WEATHER_API_KEY=your_key)';
-      loading = false;
-      notifyListeners();
-      return;
-    }
-
     try {
       final current = await _service.getCurrentWeather(q);
       final forecast = await _service.getForecast3Days(q);
 
-      currentWeather = Weather.fromJson(current);
-      city = currentWeather!.city;
+      final currentWeather = Weather.fromJson(current);
+      city = currentWeather.city;
       selectedCity = city;
-      tempC = currentWeather!.tempC;
-      condition = currentWeather!.condition;
-      iconUrl = currentWeather!.iconUrl;
+      tempC = currentWeather.tempC;
+      condition = currentWeather.condition;
+      iconUrl = currentWeather.iconUrl;
 
       final days = (forecast['forecast']['forecastday'] as List<dynamic>)
           .map((d) => ForecastDay.fromJson(d))
@@ -133,10 +125,10 @@ class WeatherProvider extends ChangeNotifier {
 
     } catch (e) {
       error = e.toString();
+    } finally {
+      loading = false;
+      notifyListeners();
     }
-
-    loading = false;
-    notifyListeners();
   }
 
   Future<void> fetchCityPreview(String cityName) async {

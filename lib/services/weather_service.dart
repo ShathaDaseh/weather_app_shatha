@@ -14,7 +14,7 @@ class WeatherService {
     final key = _resolveKey();
     if (key.isEmpty) {
       throw Exception(
-          'Missing WEATHER_API_KEY (provide via .env or --dart-define)');
+          'Missing WEATHER_API_KEY (pass via --dart-define WEATHER_API_KEY=your_key)');
     }
     final url = Uri.parse(
       "$_baseUrl/current.json?key=${Uri.encodeComponent(key)}&q=${Uri.encodeComponent(city)}&aqi=no",
@@ -22,7 +22,7 @@ class WeatherService {
     final res = await http.get(url);
 
     if (res.statusCode != 200) {
-      throw Exception("Failed to load weather");
+      throw Exception("Failed to load weather (status: ${res.statusCode})");
     }
 
     return jsonDecode(res.body) as Map<String, dynamic>;
@@ -33,7 +33,7 @@ class WeatherService {
     final key = _resolveKey();
     if (key.isEmpty) {
       throw Exception(
-          'Missing WEATHER_API_KEY (provide via .env or --dart-define)');
+          'Missing WEATHER_API_KEY (pass via --dart-define WEATHER_API_KEY=your_key)');
     }
     if (days < 1 || days > 10) {
       throw Exception('days must be between 1 and 10');

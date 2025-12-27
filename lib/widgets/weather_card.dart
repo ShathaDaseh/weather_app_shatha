@@ -30,24 +30,20 @@ class WeatherCard extends StatelessWidget {
         onTap: onDetails,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-
         leading: Image.network(
           normalizedIcon,
           width: 45,
           height: 45,
           fit: BoxFit.contain,
         ),
-
         title: Text(
           city,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
-
         subtitle: Text(
           conditionText,
           style: const TextStyle(fontSize: 14),
         ),
-
         trailing: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,7 +54,7 @@ class WeatherCard extends StatelessWidget {
             ),
             if (onDetails != null)
               IconButton(
-                padding: EdgeInsets.zero, 
+                padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 icon: const Icon(Icons.info_outline, size: 22),
                 onPressed: onDetails,

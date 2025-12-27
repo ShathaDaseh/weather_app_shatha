@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/weather_card.dart';
 import '../widgets/app_drawer.dart';
-import 'detailed_weather_screen.dart';
+import 'forecast_3days_screen.dart';
 
 class CitiesScreen extends StatefulWidget {
   const CitiesScreen({super.key});
@@ -83,10 +83,9 @@ class _CitiesScreenState extends State<CitiesScreen> {
                     await context.read<WeatherProvider>().fetchWeather(city);
                     if (!mounted) return;
                     Navigator.push(
-                      // ignore: use_build_context_synchronously
                       context,
                       MaterialPageRoute(
-                        builder: (_) => DetailedWeatherScreen(city: city),
+                        builder: (_) => const Forecast3DaysScreen(),
                       ),
                     );
                   },

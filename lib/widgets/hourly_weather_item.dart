@@ -15,8 +15,7 @@ class HourlyWeatherItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 85,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,

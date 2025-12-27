@@ -21,21 +21,18 @@ class HourlyForecastScreen extends StatelessWidget {
     } else if (hours == null || hours.isEmpty) {
       body = const Center(child: Text("Load a city first"));
     } else {
-      body = SizedBox(
-        height: 160,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: hours.length,
-          itemBuilder: (context, index) {
-            final h = hours[index];
-            final label = h.time.length > 11 ? h.time.substring(11) : h.time;
-            return HourlyWeatherItem(
-              hour: label,
-              temp: h.tempC.toStringAsFixed(0),
-              iconUrl: h.iconUrl,
-            );
-          },
-        ),
+      body = ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: hours.length,
+        itemBuilder: (context, index) {
+          final h = hours[index];
+          final label = h.time.length > 11 ? h.time.substring(11) : h.time;
+          return HourlyWeatherItem(
+            hour: label,
+            temp: h.tempC.toStringAsFixed(0),
+            iconUrl: h.iconUrl,
+          );
+        },
       );
     }
 
